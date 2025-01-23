@@ -11,3 +11,15 @@ wrangler secret put AIRTABLE_API_KEY
 wrangler secret put AIRTABLE_BASE_ID
 wrangler secret put AIRTABLE_TABLE_ID
 ```
+
+## Development documentation
+
+Create a `.dev.vars` file in the root of the project, and specify env vars like this:
+
+```env
+AIRTABLE_BASE_ID=appABCD
+AIRTABLE_TABLE_NAME=tblABCD
+AIRTABLE_API_KEY=patABCDEFGHIJKLMNOP
+```
+
+Then run the standard `yarn` + `yarn dev` incarnation, and the worker should run locally using Wrangler :)
