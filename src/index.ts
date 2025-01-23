@@ -40,6 +40,7 @@ export default {
         const userId = jsonData.user_id.toLowerCase()
 
         // Append the data to our Airtable base
+        console.log(`Sending POST to ${url}`)
         const airtableResponse = await fetch(url, {
           method: "POST",
           headers: {
@@ -54,7 +55,11 @@ export default {
             },
           }),
         })
-        if (!airtableResponse.ok) throw new Error("Failed to save to Airtable")
+
+        if (!airtableResponse.ok) {
+          console.error(await airtableResponse.json())
+          throw new Error("Failed to save to Airtable")
+        }
 
         const airtableData = await airtableResponse.json()
         return new Response(JSON.stringify(airtableData), {
