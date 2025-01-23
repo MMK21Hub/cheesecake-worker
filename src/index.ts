@@ -40,19 +40,26 @@ export default {
         const userId = jsonData.user_id.toLowerCase()
 
         // Append the data to our Airtable base
-        console.log(`Sending POST to ${url}`)
+        console.log(`Sending PATCH to ${url}`)
         const airtableResponse = await fetch(url, {
-          method: "POST",
+          method: "PATCH",
           headers: {
             Authorization: auth,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            fields: {
-              Username: username,
-              Score: score,
-              "User ID": userId,
+            performUpsert: {
+              fieldsToMergeOn: ["User ID"],
             },
+            records: [
+              {
+                fields: {
+                  Username: username,
+                  Score: score,
+                  "User ID": userId,
+                },
+              },
+            ],
           }),
         })
 
