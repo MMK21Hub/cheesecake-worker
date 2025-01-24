@@ -23,7 +23,7 @@ const validUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
 
 const handlePost: RequestHandler = async (request, env) => {
   // @ts-ignore
-  const url = new URL(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${env.AIRTABLE_TABLE_NAME}`)
+  const url = new URL(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${env.AIRTABLE_TABLE_ID}`)
   // @ts-ignore
   const auth = `Bearer ${env.AIRTABLE_API_KEY}`
 
@@ -83,7 +83,7 @@ const handlePost: RequestHandler = async (request, env) => {
 
 const handleGet: RequestHandler = async (_, env): Promise<Response> => {
   // @ts-ignore
-  const url = new URL(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${env.AIRTABLE_TABLE_NAME}`)
+  const url = new URL(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${env.AIRTABLE_TABLE_ID}`)
   // @ts-ignore
   const auth = `Bearer ${env.AIRTABLE_API_KEY}`
   url.searchParams.append("fields[]", "Username")
