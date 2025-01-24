@@ -10,6 +10,13 @@
  *
  * Learn more at https://developers.cloudflare.com/workers/
  */
+class ValidationError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "ValidationError"
+  }
+}
+
 type RequestHandler = (request: Request<unknown, IncomingRequestCfProperties<unknown>>, env: Env) => Promise<Response>
 
 const validUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -22,18 +29,18 @@ const handlePost: RequestHandler = async (request, env) => {
 
   try {
     const jsonData = await request.json()
-    if (typeof jsonData !== "object" || jsonData === null) throw new Error("JSON data is not an object")
+    if (typeof jsonData !== "object" || jsonData === null) throw new ValidationError("JSON data is not an object")
     // Validate that all fields are present
-    if (!("user_id" in jsonData)) throw new Error("Missing 'user_id' field")
-    if (!("score" in jsonData)) throw new Error("Missing 'score' field")
-    if (!("username" in jsonData)) throw new Error("Missing 'username' field")
+    if (!("user_id" in jsonData)) throw new ValidationError("Missing 'user_id' field")
+    if (!("score" in jsonData)) throw new ValidationError("Missing 'score' field")
+    if (!("username" in jsonData)) throw new ValidationError("Missing 'username' field")
     // Validate data types and formats
-    if (typeof jsonData.user_id !== "string") throw new Error("User ID is not a string")
-    if (!validUUID.test(jsonData.user_id)) throw new Error("User ID is not a valid UUID")
-    if (typeof jsonData.score !== "number") throw new Error("Score is not a number")
-    if (jsonData.score < 0) throw new Error("Score is negative")
-    if (typeof jsonData.username !== "string") throw new Error("Username is not a string")
-    if (jsonData.username.length === 0) throw new Error("Username is empty")
+    if (typeof jsonData.user_id !== "string") throw new ValidationError("User ID is not a string")
+    if (!validUUID.test(jsonData.user_id)) throw new ValidationError("User ID is not a valid UUID")
+    if (typeof jsonData.score !== "number") throw new ValidationError("Score is not a number")
+    if (jsonData.score < 0) throw new ValidationError("Score is negative")
+    if (typeof jsonData.username !== "string") throw new ValidationError("Username is not a string")
+    if (jsonData.username.length === 0) throw new ValidationError("Username is empty")
     // Ensure consistency in the database by normalising the values
     const username = jsonData.username.trim().slice(0, 255)
     const score = Math.floor(jsonData.score) // Ensure score is an integer
@@ -118,6 +125,15 @@ export default {
     const handler = getHandler(request)
     if (!handler) return new Response("Woah there, method not allowed!", { status: 405 })
     return handler(request, env).catch((error) => {
+      if (error instanceof ValidationError) {
+        // The client has made an error, i.e. sent invalid request data
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        })
+      }
+      // Some unexpected error has been thrown, e.g. Airtable API error
+      console.error(error)
       return new Response(JSON.stringify({ error: error.message }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
