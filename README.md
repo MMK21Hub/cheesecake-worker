@@ -32,3 +32,11 @@ AIRTABLE_API_KEY=patABCDEFGHIJKLMNOP
 ```
 
 Then run the standard `yarn` + `yarn dev` incarnation, and the worker should run locally using Wrangler :)
+
+## Screenshots
+
+Note that in reality, user IDs will be randomly generated UUIDs.
+
+![Screenshot of the Airtable base](airtable-screenshot.png)
+
+![Screenshot of the JSON response from a GET request in Firefox](example-get-json.png)
