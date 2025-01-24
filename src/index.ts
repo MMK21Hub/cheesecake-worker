@@ -14,7 +14,7 @@ const validUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
 
 const handlePost: ExportedHandlerFetchHandler<Env, unknown> = async (request, env) => {
   // @ts-ignore
-  const url = `https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${env.AIRTABLE_TABLE_NAME}`
+  const url = new URL(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${env.AIRTABLE_TABLE_NAME}`)
   // @ts-ignore
   const auth = `Bearer ${env.AIRTABLE_API_KEY}`
 
