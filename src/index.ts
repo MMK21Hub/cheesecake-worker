@@ -81,16 +81,15 @@ const handlePost: ExportedHandlerFetchHandler<Env, unknown> = async (request, en
 
 const handleGet = async (request: Request<unknown, IncomingRequestCfProperties<unknown>>, env: Env): Promise<Response> => {
   // @ts-ignore
-  const url = `https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${env.AIRTABLE_TABLE_NAME}`
+  const url = new URL(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${env.AIRTABLE_TABLE_NAME}`)
   // @ts-ignore
   const auth = `Bearer ${env.AIRTABLE_API_KEY}`
-  const params = new URLSearchParams()
-  params.append("fields[]", "Username")
-  params.append("fields[]", "Score")
+  url.searchParams.append("fields[]", "Username")
+  url.searchParams.append("fields[]", "Score")
   // @ts-ignore
-  params.append("view", env.AIRTABLE_VIEW_ID)
+  url.searchParams.append("view", env.AIRTABLE_VIEW_ID)
 
-  const airtableResponse = await fetch(url + "?" + params, {
+  const airtableResponse = await fetch(url, {
     headers: {
       Authorization: auth,
     },
