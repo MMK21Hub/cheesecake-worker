@@ -17,6 +17,19 @@ class ValidationError extends Error {
   }
 }
 
+interface AirtableRecord {
+  fields: {
+    id: string
+    createdTime: string
+    [field: string]: unknown
+  }
+}
+
+interface AirtableRecords {
+  records: AirtableRecord[]
+  offset?: string
+}
+
 type RequestHandler = (request: Request<unknown, IncomingRequestCfProperties<unknown>>, env: Env) => Promise<Response>
 
 const validUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -100,8 +113,15 @@ const handleGet: RequestHandler = async (_, env): Promise<Response> => {
     console.error(await airtableResponse.json())
     throw new Error("Failed to fetch from Airtable")
   }
-  const airtableData = await airtableResponse.json()
-  return new Response(JSON.stringify(airtableData), {
+  const airtableData = (await airtableResponse.json()) as AirtableRecords
+
+  const leaderboardData = airtableData.records.map((record) => {
+    const { Username: username, Score: score } = record.fields
+    if (typeof username !== "string" || typeof score !== "number") throw new Error("Invalid record data in Airtable")
+    return { username, score }
+  })
+
+  return new Response(JSON.stringify(leaderboardData), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   })
