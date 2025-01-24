@@ -114,7 +114,7 @@ function getHandler(request: Request<unknown, IncomingRequestCfProperties<unknow
 }
 
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request, env) {
     const handler = getHandler(request)
     if (!handler) return new Response("Woah there, method not allowed!", { status: 405 })
     return handler(request, env).catch((error) => {
