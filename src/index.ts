@@ -104,6 +104,7 @@ const handleGet: RequestHandler = async (_, env): Promise<Response> => {
   // @ts-ignore
   url.searchParams.append("view", env.AIRTABLE_VIEW_ID)
 
+  const fetchTime = performance.now()
   const airtableResponse = await fetch(url, {
     headers: {
       Authorization: auth,
@@ -114,6 +115,7 @@ const handleGet: RequestHandler = async (_, env): Promise<Response> => {
     throw new Error("Failed to fetch from Airtable")
   }
   const airtableData = (await airtableResponse.json()) as AirtableRecords
+  console.log(`Fetched data from Airtable in ${performance.now() - fetchTime}ms`)
 
   const leaderboardData = airtableData.records.map((record) => {
     const { Username: username, Score: score } = record.fields
