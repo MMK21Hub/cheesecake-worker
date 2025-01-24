@@ -79,11 +79,31 @@ const handlePost: ExportedHandlerFetchHandler<Env, unknown> = async (request, en
   }
 }
 
-const handleGet: ExportedHandlerFetchHandler<Env, unknown> = async (request, env) => {
+const handleGet = async (request: Request<unknown, IncomingRequestCfProperties<unknown>>, env: Env): Promise<Response> => {
   // @ts-ignore
   const url = `https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${env.AIRTABLE_TABLE_NAME}`
   // @ts-ignore
   const auth = `Bearer ${env.AIRTABLE_API_KEY}`
+  const params = new URLSearchParams()
+  params.append("fields[]", "Username")
+  params.append("fields[]", "Score")
+  // @ts-ignore
+  params.append("view", env.AIRTABLE_VIEW_ID)
+
+  const airtableResponse = await fetch(url + "?" + params, {
+    headers: {
+      Authorization: auth,
+    },
+  })
+  if (!airtableResponse.ok) {
+    console.error(await airtableResponse.json())
+    throw new Error("Failed to fetch from Airtable")
+  }
+  const airtableData = await airtableResponse.json()
+  return new Response(JSON.stringify(airtableData), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  })
 }
 
 export default {
@@ -92,7 +112,13 @@ export default {
       return handlePost(request, env, ctx)
     }
     if (request.method === "GET") {
-      return handleGet(request, env, ctx)
+      return handleGet(request, env).catch(
+        (error) =>
+          new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          })
+      )
     }
 
     return new Response("Woah there, method not allowed!", { status: 405 })
