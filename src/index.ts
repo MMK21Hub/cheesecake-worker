@@ -34,6 +34,12 @@ type RequestHandler = (request: Request<unknown, IncomingRequestCfProperties<unk
 
 const validUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "*",
+  "Access-Control-Allow-Headers": "*",
+}
+
 const handlePost: RequestHandler = async (request, env) => {
   // @ts-ignore
   const url = new URL(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${env.AIRTABLE_TABLE_ID}`)
@@ -90,7 +96,7 @@ const handlePost: RequestHandler = async (request, env) => {
   const airtableData = await airtableResponse.json()
   return new Response(JSON.stringify(airtableData), {
     status: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...corsHeaders },
   })
 }
 
@@ -125,7 +131,7 @@ const handleGet: RequestHandler = async (_, env): Promise<Response> => {
 
   return new Response(JSON.stringify(leaderboardData), {
     status: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...corsHeaders },
   })
 }
 
@@ -138,20 +144,27 @@ function getHandler(request: Request<unknown, IncomingRequestCfProperties<unknow
 export default {
   async fetch(request, env) {
     const handler = getHandler(request)
-    if (!handler) return new Response("Woah there, method not allowed!", { status: 405 })
+    if (!handler)
+      return new Response("Woah there, method not allowed!", {
+        status: 405,
+        headers: {
+          "Content-Type": "text/plain",
+          ...corsHeaders,
+        },
+      })
     return handler(request, env).catch((error) => {
       if (error instanceof ValidationError) {
         // The client has made an error, i.e. sent invalid request data
         return new Response(JSON.stringify({ error: error.message }), {
           status: 400,
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...corsHeaders },
         })
       }
       // Some unexpected error has been thrown, e.g. Airtable API error
       console.error(error)
       return new Response(JSON.stringify({ error: error.message }), {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...corsHeaders },
       })
     })
   },
