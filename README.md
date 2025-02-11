@@ -40,3 +40,13 @@ Note that in reality, user IDs will be randomly generated UUIDs.
 ![Screenshot of the Airtable base](airtable-screenshot.png)
 
 ![Screenshot of the JSON response from a GET request in Firefox](example-get-json.png)
+
+## Deployment documentation
+
+### Deploying to production
+
+Upload and deploy it to Cloudflare Workers using Wrangler:
+
+```bash
+wrangler publish
+```
