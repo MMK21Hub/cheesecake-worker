@@ -50,3 +50,9 @@ Upload and deploy it to Cloudflare Workers using Wrangler:
 ```bash
 wrangler publish
 ```
+
+Or, if you don't have `wrangler` installed on your machine, you can use it through `yarn`:
+
+```bash
+yarn deploy
+```
