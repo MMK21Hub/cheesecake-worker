@@ -135,15 +135,28 @@ const handleGet: RequestHandler = async (_, env): Promise<Response> => {
   })
 }
 
-function getHandler(request: Request<unknown, IncomingRequestCfProperties<unknown>>): RequestHandler | null {
+async function handleOptions(): Promise<Response> {
+  const info = "Information about this API is at https://github.com/MMK21Hub/cheesecake-worker"
+  return new Response(info, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/plain",
+      Allow: "GET, POST, OPTIONS",
+      ...corsHeaders,
+    },
+  })
+}
+
+function matchHandler(request: Request<unknown, IncomingRequestCfProperties<unknown>>): RequestHandler | null {
   if (request.method === "POST") return handlePost
   if (request.method === "GET") return handleGet
+  if (request.method === "OPTIONS") return handleOptions
   return null
 }
 
 export default {
   async fetch(request, env) {
-    const handler = getHandler(request)
+    const handler = matchHandler(request)
     if (!handler)
       return new Response("Woah there, method not allowed!", {
         status: 405,
