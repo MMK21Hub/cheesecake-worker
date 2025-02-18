@@ -135,7 +135,7 @@ const handleGet: RequestHandler = async (_, env): Promise<Response> => {
   })
 }
 
-async function handleOptions(): Promise<Response> {
+const handleOptions: RequestHandler = async () => {
   const info = "Information about this API is at https://github.com/MMK21Hub/cheesecake-worker"
   return new Response(info, {
     status: 200,
@@ -147,10 +147,20 @@ async function handleOptions(): Promise<Response> {
   })
 }
 
+const handleHead: RequestHandler = async (request, env) => {
+  const getResponse = await handleGet(request, env)
+  // Return the same headers as the GET request, but without the body
+  return new Response(null, {
+    status: getResponse.status,
+    headers: getResponse.headers,
+  })
+}
+
 function matchHandler(request: Request<unknown, IncomingRequestCfProperties<unknown>>): RequestHandler | null {
   if (request.method === "POST") return handlePost
   if (request.method === "GET") return handleGet
   if (request.method === "OPTIONS") return handleOptions
+  if (request.method === "HEAD") return handleHead
   return null
 }
 
